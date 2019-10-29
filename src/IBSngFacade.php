@@ -4,7 +4,14 @@
     namespace blackpanda\ibs;
 
 
-    class IBSngFacade
+    use Illuminate\Support\Facades\Facade;
+
+    class IBSngFacade extends Facade
     {
+
+        protected static function getFacadeAccessor()
+        {
+            return IBSng::class;
+        }
 
     }

@@ -27,4 +27,15 @@
             $this->app->register(EventServiceProvider::class);
         }
 
+        public function boot()
+        {
+
+            // Publishes
+
+            // Configs
+            $this->publishes([
+                __DIR__ . '/../publishes/config' => config_path('/'),
+            ], 'configs');
+        }
+
     }
