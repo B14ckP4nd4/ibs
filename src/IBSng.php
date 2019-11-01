@@ -4,6 +4,9 @@
     namespace blackpanda\ibs;
 
 
+    use blackpanda\ibs\objects\userEditParse;
+    use blackpanda\ibs\objects\userInfoParse;
+
     class IBSng
     {
         protected $ip;
@@ -30,31 +33,67 @@
             // Set Admin URL Suffix
             $this->adminURLSuffix = '/IBSng/admin/';
 
-            // Hidden lib xml errors
-            libxml_use_internal_errors(true);
-
+            // Login to IBSng Automatically
             if ($autpLogin) $this->login();
 
 
         }
 
 
-        // get User By ID
-        public function getUserbyID(int $userID)
+        // get User By ID from user info Page and edit Page
+        public function getUserByID(int $userID)
         {
-            $url = $this->ip . $this->adminURLSuffix . 'user/user_info.php';
+            $url = $this->adminUrl('user/user_info.php');
             $GET = [
                 'user_id_multi' => $userID
             ];
             $response = $this->sendRequest($url, [], $GET, true);
-            dd($response);
+            $parse = new userInfoParse($response);
+            if($parse->userExist())
+            {
+                $result = new \stdClass();
+                $result->id = $userID;
+                $result->username = $parse->getUsername();
+                $result->password = $this->getUserPassword($userID);
+                $result->creation = $parse->getCreationDate();
+
+                return $result;
+            }
+
+            return false;
 
         }
 
+        // Get Password From edit page
+        public function getUserPassword(int $userID)
+        {
+            return $this->getUserEditPageInfo($userID)->getUserPassword();
+        }
 
+        // Get Username from edit Page
+        public function getUsername(int $userID)
+        {
+            return $this->getUserEditPageInfo($userID)->getUserPassword();
+        }
+
+        // Parse schema://uri/IBSng/admin/plugins/edit.php page Information
+        private function getUserEditPageInfo(int $userID)
+        {
+            $url = $this->adminUrl('plugins/edit.php');
+            $post = [
+                'user_id' => $userID,
+                'edit_user' => 1,
+                'attr_edit_checkbox_2' => 'normal_username'
+            ];
+            $response = $this->sendRequest($url,$post);
+            return new userEditParse($response);
+        }
+
+
+        // login To IBSng
         private function login()
         {
-            $url = $this->ip . $this->adminURLSuffix;
+            $url = $this->adminUrl();
             $postData = [];
             $postData['username'] = $this->adminUsername;
             $postData['password'] = $this->adminPassword;
@@ -67,14 +106,12 @@
         }
 
         // Setter Methods
-
         public function __set($name, $value)
         {
             $this->{$name} = $value;
         }
 
         // Setter For Facade
-
         public function setSetver(string $ip, int $port = null, string $adminUsername = null, string $adminPassword = null)
         {
             $this->ip = $ip;
@@ -84,7 +121,6 @@
         }
 
         // Send IBSng Requests
-
         private function sendRequest($url, array $post = [], array $get = [], $header = false, $cookies = null)
         {
             if (empty($cookies)) {
@@ -93,6 +129,12 @@
 
             // Set Handler
             $this->request = curl_init();
+
+            // set gets
+            if($get)
+            {
+                $url = $url .'?'. http_build_query($get);
+            }
 
             // SetTimeOut
             curl_setopt($this->request, CURLOPT_CONNECTTIMEOUT, 0);
@@ -135,6 +177,14 @@
 
             return $response;
         }
+
+        // Generate Admin URL for Send Requests
+        private function adminUrl($endpoint = null)
+        {
+            if(is_null($endpoint)) return $this->ip . $this->adminURLSuffix;
+            return $this->ip . $this->adminURLSuffix . ltrim($endpoint , '/');
+        }
+
 
 
     }
