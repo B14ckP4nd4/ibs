@@ -47,7 +47,7 @@
                 'user_id_multi' => $userID
             ];
             $response = $this->sendRequest($url, [], $GET, true);
-            var_dump($response);
+            dd($response);
 
         }
 
