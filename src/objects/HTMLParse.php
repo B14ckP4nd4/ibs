@@ -6,7 +6,7 @@
 
     abstract class HTMLParse
     {
-        private $html;
+        protected $html;
 
         public function __construct($html)
         {
@@ -29,6 +29,12 @@
 
         protected function getResponse(){
             return $this->html;
+        }
+
+        protected function getPart(string $keyword , int $length)
+        {
+            $keywordPosition = strpos($this->html,$keyword);
+            return ( $keywordPosition !== false ) ? substr($this->html,$keywordPosition,$length) : false ;
         }
 
 

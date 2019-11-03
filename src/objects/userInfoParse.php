@@ -6,8 +6,6 @@
 
     class userInfoParse extends HTMLParse
     {
-        private $html;
-
         public function __construct($html)
         {
             parent::__construct($html);
@@ -34,8 +32,7 @@
 
         public function getUsername()
         {
-            $usernamePos = strpos($this->html,'Internet Username');
-            $usernameWrapper = substr($this->html,$usernamePos,200);
+            $usernameWrapper = $this->getPart('Internet Username',200);
             $preg = preg_match("#Internet Username(.*)class=\"Form_Content_Row_Right_userinfo_light\">(?<username>.*)<\/td>#s", $usernameWrapper, $match);
             if(isset($match['username']))
             {
@@ -47,8 +44,7 @@
 
         public function getCreationDate()
         {
-            $creationPos = strpos($this->html,'Creation Date');
-            $creationWrapper = substr($this->html,$creationPos,200);
+            $creationWrapper = $this->getPart('Creation Date' , 200);
             $preg = preg_match("#Creation Date(.*)class=\"Form_Content_Row_Right_light\">(?<creation>\d+-\d+-\d+\s\d+:\d+).*<\/td>#s", $creationWrapper, $match);
             return (isset($match['creation'])) ? strtotime($match['creation']) : false;
         }

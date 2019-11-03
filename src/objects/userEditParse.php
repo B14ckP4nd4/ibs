@@ -6,7 +6,6 @@
 
     class userEditParse extends HTMLParse
     {
-        private $html;
 
         public function __construct($html)
         {

@@ -4,6 +4,8 @@
     namespace blackpanda\ibs;
 
 
+    use blackpanda\ibs\objects\createNewUserIDParse;
+    use blackpanda\ibs\objects\setNewUserInfoParse;
     use blackpanda\ibs\objects\userEditParse;
     use blackpanda\ibs\objects\userInfoParse;
 
@@ -18,6 +20,8 @@
         private $agent;
         protected $connected = false;
         protected $adminURLSuffix;
+        protected $group;
+        protected $credit;
 
         public function __construct(string $ip, int $port = null, string $adminUsername = null, string $adminPassword = null, bool $autpLogin = true)
         {
@@ -35,6 +39,10 @@
 
             // Login to IBSng Automatically
             if ($autpLogin) $this->login();
+
+            // set Default Values for Create New Users
+            $this->group = config('ibsng.default_user_group');
+            $this->credit = config('ibsng.default_user_credit');
 
 
         }
@@ -76,6 +84,85 @@
             return $this->getUserEditPageInfo($userID)->getUserPassword();
         }
 
+        // Create New User
+        public function createNewUser(string $username,string $password,string $group = null,int $credit = null)
+        {
+            if(is_null($group)) $group = $this->group;
+            if(is_null($credit)) $credit = $this->credit;
+
+            $newUserID = $this->createNewUserID($group , $credit);
+
+            if(!$newUserID) return false;
+
+            $url = $this->adminUrl('plugins/edit.php');
+
+            $get = [
+                'edit_user' => 1,
+                'user_id' => $newUserID,
+                'submit_form' => 1,
+                'add' => 1,
+                'count' => 1,
+                'credit' => 1,
+                'owner_name' => $this->adminUsername,
+                'group_name' => $this->group,
+                'x' => 35,
+                'y' => 1,
+                'edit__normal_username' => 'normal_username'
+            ];
+
+            $post = [
+                'target_id' => $newUserID,
+                'normal_username' => $username,
+                'password' => $password,
+                'credit' => $credit,
+                'target' => 'user',
+                'normal_save_user_add' => 1,
+                'edit_tpl_cs' => 'normal_username',
+                'attr_update_method_0' => 'normalAttrs',
+                'has_normal_username' => 't',
+                'current_normal_username' => '',
+                'update' => 1,
+            ];
+
+            $request = $this->sendRequest($url,$post,$get,true);
+
+            $parse = new setNewUserInfoParse($request);
+
+            if($parse->success()){
+                $result = new \stdClass();
+                $result->id = $newUserID;
+                $result->username = $username;
+                $result->password = $password;
+                $result->creation = strtotime('now');
+
+                return $result;
+            }
+
+            return false;
+
+        }
+
+        // Create new User ID
+        private function createNewUserID( string $group , int $credit){
+            $params = [
+                'submit_form' => 1,
+                'add' => 1,
+                'count' => 1,
+                'credit' => $credit,
+                'owner_name' => $this->adminUsername,
+                'group_name' => $group,
+                'edit__normal_username' => 1,
+            ];
+
+            $url = $this->adminUrl('user/add_new_users.php');
+
+            $request = $this->sendRequest($url , $params , [] , true);
+
+            $parse = new createNewUserIDParse($request);
+
+            return $parse->getUserID();
+        }
+
         // Parse schema://uri/IBSng/admin/plugins/edit.php page Information
         private function getUserEditPageInfo(int $userID)
         {
@@ -88,7 +175,6 @@
             $response = $this->sendRequest($url,$post);
             return new userEditParse($response);
         }
-
 
         // login To IBSng
         private function login()
