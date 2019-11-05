@@ -74,7 +74,7 @@
         }
 
         // get All Users on Server
-        public function getAllUsers(bool $withPassword = false)
+        public function getAllUsers(bool $withPassword = false,array $search = [])
         {
             $url = $this->adminUrl('user/search_user.php');
             $post = [
@@ -142,6 +142,8 @@
 //        'desc' => 'on',
                 'Absolute_ExpDate' => 'show__attrs_abs_exp_date',
             ];
+            if(!empty($search)) $post = array_merge($post , $search);
+
             $request = $this->sendRequest($url,$post,[],true);
 
             $parse = new searchUsersParse($request);
@@ -158,6 +160,16 @@
             }
 
             return $usersWithPass;
+        }
+
+        public function searchUser(string $username)
+        {
+            $search = [
+                'normal_username_op' => 'like',
+                'normal_username' => $username,
+                'user_id' => '',
+            ];
+            return $this->getAllUsers(true,$search);
         }
 
         // Get Password From edit page
