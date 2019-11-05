@@ -5,6 +5,7 @@
 
 
     use blackpanda\ibs\objects\createNewUserIDParse;
+    use blackpanda\ibs\objects\searchUsersParse;
     use blackpanda\ibs\objects\setNewUserInfoParse;
     use blackpanda\ibs\objects\userEditParse;
     use blackpanda\ibs\objects\userInfoParse;
@@ -70,6 +71,82 @@
 
             return false;
 
+        }
+
+        // get All Users on Server
+        public function getAllUsers()
+        {
+            $url = $this->adminUrl('user/search_user.php');
+            $post = [
+                'user_id_op' => '>=',
+                'user_id' => 1,
+                'normal_username_op' => 'equals',
+                'normal_username' => '',
+                'voip_username_op' => 'equals',
+                'voip_username' => '',
+                'caller_id_op' => 'equals',
+                'caller_id' => '',
+                'credit_op' => '=>',
+                'credit' => '',
+                'abs_exp_date_op' => '=>',
+                'abs_exp_date' => '',
+                'abs_exp_date_unit' => 'days',
+                'rel_exp_date_op' => '=>',
+                'rel_exp_date' => '',
+                'rel_exp_date_unit' => 'days',
+                'rel_exp_value_op' => '=>',
+                'rel_exp_value' => '',
+                'rel_exp_value_unit' => 'Days',
+                'first_login_op' => '=>',
+                'first_login' => '',
+                'first_login_unit' => 'days',
+                'lock_reason_op' => 'equals',
+                'lock_reason' => '',
+                'persistent_lan_mac' => '',
+                'persistent_lan_ip' => '',
+                'persistent_lan_ras_ip' => '',
+                'limit_mac_op' => 'equals',
+                'limit_mac' => '',
+                'limit_station_ip_op' => 'equals',
+                'limit_station_ip' => '',
+                'comment_op' => 'equals',
+                'comment' => '',
+                'name_op' => 'equals',
+                'name' => '',
+                'phone_op' => 'equals',
+                'phone' => '',
+                'email_address_op' => 'equals',
+                'email_address' => '',
+                'multi_login_op' => '=>',
+                'multi_login' => '',
+                'ippool' => '',
+                'assign_ip_op' => 'equals',
+                'assign_ip' => '',
+                'order_by' => 'creation_date',
+                'rpp' => 2000,
+                'view_options' => '0',
+                'Internet_Username' => 'show__attrs_normal_username',
+                'Credit' => 'show__basic_credit|price',
+                'Group' => 'show__basic_group_name',
+                'Owner' => 'show__basic_owner_name',
+                'Creation_Date' => 'show__basic_creation_date',
+                'Relative_ExpDate' => 'show__attrs_rel_exp_date,show__attrs_rel_exp_date_unit',
+                'Lock' => 'show__attrs_lock|lockFormat',
+                'Multi_Login' => 'show__attrs_multi_login',
+                'x' => '18',
+                'y' => '9',
+                'search' => '1',
+                'show_reports' => '1',
+                'page' => 1,
+                'order_by' => 'creation_date',
+//        'desc' => 'on',
+                'Absolute_ExpDate' => 'show__attrs_abs_exp_date',
+            ];
+            $request = $this->sendRequest($url,$post,[],true);
+
+            $parse = new searchUsersParse($request);
+
+            $parse->getResults();
         }
 
         // Get Password From edit page
