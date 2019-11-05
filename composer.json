@@ -1,7 +1,8 @@
 {
-    "name": "b14ckp4nd4/ibs",
+    "name": "blackpanda/ibs",
     "description": "IBSng API Wrapper",
     "license" : "MIT",
+    "version": "1.0.0",
     "autoload": {
         "psr-4": {
             "b14ckp4nd4\\ibs\\" : "src/"
