@@ -1,11 +1,11 @@
 {
     "name": "blackpanda/ibs",
+    "version": "1.0.0",
     "description": "IBSng API Wrapper",
     "license" : "MIT",
-    "version": "1.0.0",
     "autoload": {
         "psr-4": {
-            "b14ckp4nd4\\ibs\\" : "src/"
+            "blackpanda\\ibs\\" : "src/"
         }
     },
     "authors": [
