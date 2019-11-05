@@ -74,7 +74,7 @@
         }
 
         // get All Users on Server
-        public function getAllUsers()
+        public function getAllUsers(bool $withPassword = false)
         {
             $url = $this->adminUrl('user/search_user.php');
             $post = [
@@ -145,8 +145,19 @@
             $request = $this->sendRequest($url,$post,[],true);
 
             $parse = new searchUsersParse($request);
+            $users = $parse->getResults();
+            if(!$withPassword) return $users;
+            $usersWithPass = [];
 
-            $parse->getResults();
+            foreach ($users as $user)
+            {
+                if($user['user'] == '-') continue;
+                $usersWithPass[] = array_merge($user, [
+                    'password' => $this->getUserPassword($user['id']),
+                ]);
+            }
+
+            return $usersWithPass;
         }
 
         // Get Password From edit page

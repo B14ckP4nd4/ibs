@@ -37,8 +37,7 @@
                     foreach ($results as $key => $val){
                         $item[$key] = $val[0];
                     }
-                    $results = new Collection($item);
-                    $users[] = $results;
+                    $users[] = $item;
                 }
             }
             return $users;
