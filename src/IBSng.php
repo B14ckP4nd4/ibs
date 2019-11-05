@@ -139,7 +139,6 @@
                 'show_reports' => '1',
                 'page' => 1,
                 'order_by' => 'creation_date',
-//        'desc' => 'on',
                 'Absolute_ExpDate' => 'show__attrs_abs_exp_date',
             ];
             if(!empty($search)) $post = array_merge($post , $search);
@@ -162,6 +161,7 @@
             return $usersWithPass;
         }
 
+        // Search for user with normal internet Username
         public function searchUser(string $username)
         {
             $search = [
