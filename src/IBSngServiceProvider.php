@@ -35,7 +35,17 @@
             // Configs
             $this->publishes([
                 __DIR__ . '/../publishes/config' => config_path('/'),
-            ], 'configs');
+            ], 'ibs-configs');
+
+            // Migrations
+            $this->publishes([
+                __DIR__ . '/../publishes/migrations' => database_path('/migrations'),
+            ], 'ibs-migrations');
+
+            // Models
+            $this->publishes([
+                __DIR__ . '/../publishes/Models' => app_path(),
+            ], 'ibs-Models');
         }
 
     }
